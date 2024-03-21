@@ -1,0 +1,29 @@
+version: "2.3"
+services:
+  app:
+    build: "."
+    networks:
+      - callbacknet
+    volumes:
+      - app_data:/go/src/app/log
+  ngrok:
+    image: ngrok/ngrok
+    ports:
+      - "4040:4040"
+    environment:
+      - NGROK_PORT=app:8000
+      - NGROK_AUTHTOKEN="${NGROK_AUTH}"
+    command:
+      - "http"
+      - "app:8000"
+    networks:
+      - callbacknet
+networks:
+  callbacknet:
+volumes:
+  app_data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=host.docker.internal,rw,nolock,hard
+      device: ":${NFS_DOCKER_VOLUME_DIR}"
